@@ -20,7 +20,7 @@ const projects = [
     results: "Fully responsive multi-device experience",
   },
   {
-    image: "/manus-storage/book-corner_a68e637a.png",
+    image: "/manus-storage/book-corner-real_499d2c46.jpeg",
     name: "Book Corner",
     client: "Book Corner Egypt",
     url: "https://bookcorner-eg.myshopify.com",
