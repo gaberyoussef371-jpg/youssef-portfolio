@@ -40,7 +40,7 @@ const projects = [
     results: "Premium brand presentation",
   },
   {
-    image: "/manus-storage/maison-declat_230297d5.png",
+    image: "/manus-storage/maison-declat-real_11d343ea.jpeg",
     name: "Maison Declat",
     client: "Maison Declat",
     url: "https://maisondeclate.myshopify.com",
