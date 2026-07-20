@@ -30,7 +30,7 @@ const projects = [
     results: "Clean, intuitive browsing experience",
   },
   {
-    image: "/manus-storage/dolce_8a8471bf.png",
+    image: "/manus-storage/dolce-real_820c7c40.jpeg",
     name: "Dolce",
     client: "Dolce Egypt",
     url: "https://dolce-egy.myshopify.com",
