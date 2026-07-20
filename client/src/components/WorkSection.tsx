@@ -10,40 +10,44 @@ import { ExternalLink } from "lucide-react";
 
 const projects = [
   {
-    image: "/manus-storage/project-1_91fb388c.png",
-    name: "Luxury Fashion Store",
-    client: "Premium Fashion Brand",
+    image: "/manus-storage/gents-project_b725c36f.jpeg",
+    name: "Gents",
+    client: "Gents Egypt",
+    url: "https://www.gentseg.com",
     category: "Shopify Development",
-    description: "Complete custom Shopify development with conversion-optimized product pages, advanced filtering, and premium checkout experience.",
-    technologies: ["Shopify", "Liquid", "Custom Sections", "Tailwind"],
-    results: "150% increase in conversion rate",
+    description: "Premium jewelry e-commerce store with custom Shopify theme, countdown timers, bundles, and a polished multi-device shopping experience.",
+    technologies: ["Shopify", "Custom Theme", "Liquid", "Bundles"],
+    results: "Fully responsive multi-device experience",
   },
   {
-    image: "/manus-storage/project-2_0cb15783.png",
-    name: "Beauty & Cosmetics",
-    client: "Beauty Brand",
-    category: "UI/UX Design",
-    description: "Full UI/UX redesign focusing on product discovery, social proof integration, and streamlined purchase flow.",
-    technologies: ["Shopify", "UI/UX", "CRO", "Figma"],
-    results: "85% improvement in mobile conversion",
+    image: "/manus-storage/book-corner_a68e637a.png",
+    name: "Book Corner",
+    client: "Book Corner Egypt",
+    url: "https://bookcorner-eg.myshopify.com",
+    category: "Shopify Development",
+    description: "Online bookstore built on Shopify with clean product catalog, category navigation, and streamlined checkout for book lovers.",
+    technologies: ["Shopify", "Theme Customization", "Liquid", "UI/UX"],
+    results: "Clean, intuitive browsing experience",
   },
   {
-    image: "/manus-storage/project-3_4813aea2.png",
-    name: "Health & Supplements",
-    client: "Wellness Company",
-    category: "E-Commerce Strategy",
-    description: "Strategic e-commerce redesign with subscription model, upsell flows, and automated customer retention systems.",
-    technologies: ["Shopify Plus", "Subscriptions", "Automation", "Analytics"],
-    results: "3x increase in average order value",
+    image: "/manus-storage/dolce_8a8471bf.png",
+    name: "Dolce",
+    client: "Dolce Egypt",
+    url: "https://dolce-egy.myshopify.com",
+    category: "Shopify Development",
+    description: "Luxury fashion brand e-commerce store with premium product presentation, elegant layout, and conversion-focused design.",
+    technologies: ["Shopify", "Custom Sections", "Liquid", "UI/UX"],
+    results: "Premium brand presentation",
   },
   {
-    image: "/manus-storage/project-4_894f2119.png",
-    name: "Tech & Electronics",
-    client: "Electronics Brand",
-    category: "Custom Code",
-    description: "High-performance custom Shopify theme with 3D product visualization, advanced comparison tools, and real-time inventory.",
-    technologies: ["Shopify", "React", "Three.js", "API"],
-    results: "200ms page load improvement",
+    image: "/manus-storage/maison-declat_230297d5.png",
+    name: "Maison Declat",
+    client: "Maison Declat",
+    url: "https://maisondeclate.myshopify.com",
+    category: "Shopify Development",
+    description: "Luxury perfume and fragrance store with sophisticated design, product storytelling, and an elevated shopping experience.",
+    technologies: ["Shopify", "Custom Theme", "Liquid", "Brand Design"],
+    results: "Luxury brand digital presence",
   },
 ];
 
@@ -174,58 +178,65 @@ function ProjectCard({
       onMouseLeave={handleMouseLeave}
       style={{ perspective: 1200 }}
     >
-      <motion.div
-        style={{
-          rotateX: isHovered ? rotateX : 0,
-          rotateY: isHovered ? rotateY : 0,
-          transformStyle: "preserve-3d",
-        }}
-        className="group relative rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] transition-all duration-500 hover:border-[#C9A96E]/20 hover:shadow-[0_20px_60px_rgba(201,169,110,0.08)]"
+      <a
+        href={project.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block"
       >
-        <div className="relative aspect-[4/3] overflow-hidden">
-          <img
-            src={project.image}
-            alt={project.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          <div className="absolute top-4 left-4">
-            <span className="px-3 py-1 rounded-full text-xs font-mono bg-black/60 backdrop-blur-sm text-[#C9A96E] border border-[#C9A96E]/20">
-              {project.category}
-            </span>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-            transition={{ duration: 0.3 }}
-            className="absolute bottom-4 right-4"
-          >
-            <div className="w-10 h-10 rounded-full bg-[#C9A96E] flex items-center justify-center">
-              <ExternalLink className="w-4 h-4 text-black" />
-            </div>
-          </motion.div>
-        </div>
-        <div className="p-6 space-y-3">
-          <div>
-            <h3 className="text-white font-display font-semibold text-lg">{project.name}</h3>
-            <p className="text-white/40 text-sm">{project.client}</p>
-          </div>
-          <p className="text-white/50 text-sm leading-relaxed">{project.description}</p>
-          <div className="flex flex-wrap gap-2">
-            {project.technologies.map((tech) => (
-              <span
-                key={tech}
-                className="px-2 py-1 rounded-md text-xs font-mono bg-white/5 text-white/40"
-              >
-                {tech}
+        <motion.div
+          style={{
+            rotateX: isHovered ? rotateX : 0,
+            rotateY: isHovered ? rotateY : 0,
+            transformStyle: "preserve-3d",
+          }}
+          className="group relative rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] transition-all duration-500 hover:border-[#C9A96E]/20 hover:shadow-[0_20px_60px_rgba(201,169,110,0.08)]"
+        >
+          <div className="relative aspect-[4/3] overflow-hidden">
+            <img
+              src={project.image}
+              alt={project.name}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            <div className="absolute top-4 left-4">
+              <span className="px-3 py-1 rounded-full text-xs font-mono bg-black/60 backdrop-blur-sm text-[#C9A96E] border border-[#C9A96E]/20">
+                {project.category}
               </span>
-            ))}
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+              transition={{ duration: 0.3 }}
+              className="absolute bottom-4 right-4"
+            >
+              <div className="w-10 h-10 rounded-full bg-[#C9A96E] flex items-center justify-center">
+                <ExternalLink className="w-4 h-4 text-black" />
+              </div>
+            </motion.div>
           </div>
-          <div className="pt-2 border-t border-white/5">
-            <p className="text-[#C9A96E] text-xs font-medium">{project.results}</p>
+          <div className="p-6 space-y-3">
+            <div>
+              <h3 className="text-white font-display font-semibold text-lg">{project.name}</h3>
+              <p className="text-white/40 text-sm">{project.client}</p>
+            </div>
+            <p className="text-white/50 text-sm leading-relaxed">{project.description}</p>
+            <div className="flex flex-wrap gap-2">
+              {project.technologies.map((tech) => (
+                <span
+                  key={tech}
+                  className="px-2 py-1 rounded-md text-xs font-mono bg-white/5 text-white/40"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+            <div className="pt-2 border-t border-white/5">
+              <p className="text-[#C9A96E] text-xs font-medium">{project.results}</p>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </a>
     </motion.div>
   );
 }
@@ -239,47 +250,55 @@ function MobileProjectCard({
   index: number;
 }) {
   return (
-    <div className="w-[280px]">
-      <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
-        {/* Image */}
-        <div className="relative aspect-[4/3] overflow-hidden">
-          <img
-            src={project.image}
-            alt={project.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-          <div className="absolute top-3 left-3">
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-black/60 backdrop-blur-sm text-[#C9A96E] border border-[#C9A96E]/15">
-              {project.category}
-            </span>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-4 space-y-2">
-          <div>
-            <h3 className="text-white font-display font-semibold text-sm">{project.name}</h3>
-            <p className="text-white/35 text-[11px]">{project.client}</p>
-          </div>
-          <p className="text-white/45 text-[11px] leading-relaxed line-clamp-2">
-            {project.description}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {project.technologies.slice(0, 3).map((tech) => (
-              <span
-                key={tech}
-                className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-white/[0.03] text-white/30"
-              >
-                {tech}
+    <a href={project.url} target="_blank" rel="noopener noreferrer" className="block">
+      <div className="w-[280px]">
+        <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
+          {/* Image */}
+          <div className="relative aspect-[4/3] overflow-hidden">
+            <img
+              src={project.image}
+              alt={project.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+            <div className="absolute top-3 left-3">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-black/60 backdrop-blur-sm text-[#C9A96E] border border-[#C9A96E]/15">
+                {project.category}
               </span>
-            ))}
+            </div>
+            {/* External link icon on mobile */}
+            <div className="absolute bottom-3 right-3">
+              <div className="w-8 h-8 rounded-full bg-[#C9A96E]/20 backdrop-blur-sm flex items-center justify-center border border-[#C9A96E]/20">
+                <ExternalLink className="w-3.5 h-3.5 text-[#C9A96E]" />
+              </div>
+            </div>
           </div>
-          <div className="pt-2 border-t border-white/5">
-            <p className="text-[#C9A96E] text-[10px] font-medium">{project.results}</p>
+
+          {/* Content */}
+          <div className="p-4 space-y-2">
+            <div>
+              <h3 className="text-white font-display font-semibold text-sm">{project.name}</h3>
+              <p className="text-white/35 text-[11px]">{project.client}</p>
+            </div>
+            <p className="text-white/45 text-[11px] leading-relaxed line-clamp-2">
+              {project.description}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {project.technologies.slice(0, 3).map((tech) => (
+                <span
+                  key={tech}
+                  className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-white/[0.03] text-white/30"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+            <div className="pt-2 border-t border-white/5">
+              <p className="text-[#C9A96E] text-[10px] font-medium">{project.results}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </a>
   );
 }
