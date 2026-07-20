@@ -25,8 +25,8 @@ export default function Home() {
         <AboutSection />
         <SkillsSection />
         <WorkSection />
-        <ProcessSection />
         <ContactSection />
+        <ProcessSection />
       </main>
 
       <Footer />
