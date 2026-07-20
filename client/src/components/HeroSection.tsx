@@ -1,6 +1,7 @@
 /**
  * HeroSection — Full-screen cinematic hero with 3D character and floating elements
- * Design: Liquid Obsidian — dramatic entrance, parallax depth, cursor-reactive
+ * Design: Liquid Obsidian
+ * Desktop: 2-column with avatar + text | Mobile: centered compact with floating badges
  */
 import { useEffect, useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -35,9 +36,9 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black" />
       </motion.div>
 
-      {/* Cursor Spotlight */}
+      {/* Cursor Spotlight — desktop only */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none hidden md:block"
         style={{
           background: `radial-gradient(600px circle at ${50 + mouseOffset.x * 20}% ${50 + mouseOffset.y * 20}%, rgba(201,169,110,0.04) 0%, transparent 60%)`,
         }}
@@ -47,19 +48,23 @@ export default function HeroSection() {
       <FloatingElements mouseOffset={mouseOffset} />
 
       {/* Main Content */}
-      <motion.div style={{ opacity }} className="relative z-10 container max-w-7xl mx-auto px-6 py-32">
-        <div className="grid lg:grid-cols-12 gap-8 items-center min-h-[80vh]">
-          {/* Text Content — Left Side */}
-          <div className="lg:col-span-7 space-y-8">
+      <motion.div style={{ opacity }} className="relative z-10 container max-w-7xl mx-auto px-4 md:px-6 py-24 md:py-32">
+        <div className="grid lg:grid-cols-12 gap-8 items-center min-h-[70vh] md:min-h-[80vh]">
+          {/* Text Content — Left Side (desktop) / Center (mobile) */}
+          <div className={`space-y-6 md:space-y-8 ${
+            // Desktop: left column
+            // Mobile: centered text with floating avatar badge
+            "lg:col-span-7"
+          }`}>
             {/* Tag */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#C9A96E]/20 bg-[#C9A96E]/5"
+              className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[#C9A96E]/20 bg-[#C9A96E]/5"
             >
               <span className="w-2 h-2 rounded-full bg-[#C9A96E] animate-pulse" />
-              <span className="text-[#C9A96E] text-xs font-mono tracking-wider uppercase">
+              <span className="text-[#C9A96E] text-[10px] md:text-xs font-mono tracking-wider uppercase">
                 Available for Projects
               </span>
             </motion.div>
@@ -71,13 +76,13 @@ export default function HeroSection() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="font-display font-bold text-white leading-[1.05] tracking-tight"
             >
-              <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl">
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
                 I BUILD SHOPIFY
               </span>
-              <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl mt-1">
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mt-1">
                 EXPERIENCES THAT
               </span>
-              <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl mt-1 text-gold-gradient">
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mt-1 text-gold-gradient">
                 CONVERT.
               </span>
             </motion.h1>
@@ -87,7 +92,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="text-white/50 text-base sm:text-lg max-w-xl leading-relaxed font-light"
+              className="text-white/50 text-sm md:text-lg max-w-md md:max-w-xl leading-relaxed font-light"
             >
               Custom Shopify stores designed around customer psychology, conversion,
               and unforgettable digital experiences.
@@ -100,10 +105,10 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.9 }}
               className="flex flex-col gap-1"
             >
-              <h2 className="text-white text-xl font-display font-semibold">
+              <h2 className="text-white text-lg md:text-xl font-display font-semibold">
                 Youssef Shehata
               </h2>
-              <p className="text-[#C9A96E]/80 text-sm font-mono">
+              <p className="text-[#C9A96E]/80 text-xs md:text-sm font-mono">
                 Shopify Developer & E-Commerce Experience Designer
               </p>
             </motion.div>
@@ -113,11 +118,11 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.1 }}
-              className="flex flex-wrap gap-4"
+              className="flex flex-col sm:flex-row gap-3"
             >
               <button
                 onClick={() => setShowContact(true)}
-                className="group relative px-8 py-4 bg-[#C9A96E] text-black font-semibold text-sm rounded-full overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(201,169,110,0.3)] active:scale-95"
+                className="group relative px-6 md:px-8 py-3.5 md:py-4 bg-[#C9A96E] text-black font-semibold text-xs md:text-sm rounded-full overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(201,169,110,0.3)] active:scale-95 text-center"
               >
                 <span className="relative z-10">LET'S BUILD SOMETHING THAT CONVERTS</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#C9A96E] to-[#E8D5A3] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -129,14 +134,14 @@ export default function HeroSection() {
                   e.preventDefault();
                   document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="px-8 py-4 border border-white/10 text-white font-medium text-sm rounded-full hover:border-[#C9A96E]/30 hover:bg-[#C9A96E]/5 transition-all duration-300"
+                className="px-6 md:px-8 py-3.5 md:py-4 border border-white/10 text-white font-medium text-xs md:text-sm rounded-full hover:border-[#C9A96E]/30 hover:bg-[#C9A96E]/5 transition-all duration-300 text-center"
               >
                 VIEW MY WORK
               </a>
             </motion.div>
           </div>
 
-          {/* Character — Right Side */}
+          {/* Character — Right Side (desktop only) */}
           <div className="lg:col-span-5 relative hidden lg:block">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -148,7 +153,6 @@ export default function HeroSection() {
               }}
             >
               <div className="relative w-80 h-96 mx-auto">
-                {/* Glow behind avatar */}
                 <div className="absolute inset-0 bg-[#C9A96E]/10 rounded-full blur-3xl scale-150" />
                 <motion.div
                   animate={{ y: [0, -12, 0] }}
@@ -159,18 +163,63 @@ export default function HeroSection() {
                     src="/manus-storage/avatar_ca274b6e.png"
                     alt="Youssef Shehata"
                     className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(201,169,110,0.2)]"
-                    style={{
-                      filter: "brightness(1.05) contrast(1.05)",
-                    }}
+                    style={{ filter: "brightness(1.05) contrast(1.05)" }}
                   />
                 </motion.div>
-
-                {/* Floating skill badges around character */}
                 <FloatingBadge label="Shopify" x={-60} y={20} delay={0} />
                 <FloatingBadge label="CRO" x={80} y={60} delay={0.5} />
                 <FloatingBadge label="UI/UX" x={-70} y={160} delay={1} />
                 <FloatingBadge label="3D" x={90} y={200} delay={1.5} />
               </div>
+            </motion.div>
+          </div>
+
+          {/* Mobile: Compact avatar with floating badges */}
+          <div className="lg:hidden flex justify-center mt-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="relative w-32 h-32"
+            >
+              {/* Glow */}
+              <div className="absolute inset-0 bg-[#C9A96E]/10 rounded-full blur-2xl scale-150" />
+
+              {/* Avatar circle */}
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="relative w-full h-full rounded-full overflow-hidden border border-[#C9A96E]/20"
+              >
+                <img
+                  src="/manus-storage/avatar_ca274b6e.png"
+                  alt="Youssef Shehata"
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+
+              {/* Floating mini badges around avatar */}
+              <motion.div
+                className="absolute -top-1 -right-1 px-2 py-0.5 rounded-full glass text-[#C9A96E] text-[8px] font-mono"
+                animate={{ y: [0, -3, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                Shopify
+              </motion.div>
+              <motion.div
+                className="absolute -bottom-1 -left-1 px-2 py-0.5 rounded-full glass text-[#C9A96E] text-[8px] font-mono"
+                animate={{ y: [0, 3, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              >
+                CRO
+              </motion.div>
+              <motion.div
+                className="absolute top-1/2 -right-3 px-2 py-0.5 rounded-full glass text-[#C9A96E] text-[8px] font-mono"
+                animate={{ x: [0, 3, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              >
+                3D
+              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -200,9 +249,9 @@ export default function HeroSection() {
 function FloatingElements({ mouseOffset }: { mouseOffset: { x: number; y: number } }) {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Grid lines */}
+      {/* Grid lines — desktop only */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.03] hidden md:block"
         style={{
           backgroundImage: `linear-gradient(rgba(201,169,110,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,0.5) 1px, transparent 1px)`,
           backgroundSize: "80px 80px",
@@ -212,12 +261,12 @@ function FloatingElements({ mouseOffset }: { mouseOffset: { x: number; y: number
 
       {/* Floating orbs */}
       <motion.div
-        className="absolute top-[20%] right-[15%] w-32 h-32 rounded-full bg-[#C9A96E]/5 blur-2xl"
+        className="absolute top-[20%] right-[15%] w-24 md:w-32 h-24 md:h-32 rounded-full bg-[#C9A96E]/5 blur-2xl"
         animate={{ y: [0, -30, 0], x: [0, 10, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-[30%] left-[10%] w-48 h-48 rounded-full bg-[#C9A96E]/3 blur-3xl"
+        className="absolute bottom-[30%] left-[10%] w-32 md:w-48 h-32 md:h-48 rounded-full bg-[#C9A96E]/3 blur-3xl"
         animate={{ y: [0, 20, 0], x: [0, -15, 0] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />

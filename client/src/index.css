@@ -231,7 +231,26 @@ html {
   z-index: 9999;
 }
 
+/* Hide scrollbar for horizontal scroll areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Mobile: reduce noise overlay opacity and tighten spacing */
+@media (max-width: 767px) {
+  .noise-overlay::before {
+    opacity: 0.015;
+  }
   html {
     scroll-behavior: smooth;
   }
