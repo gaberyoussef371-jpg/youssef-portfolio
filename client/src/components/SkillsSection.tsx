@@ -66,7 +66,7 @@ export default function SkillsSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
 
   return (
-    <section id="skills" className="relative py-20 md:py-32 overflow-hidden">
+    <section id="skills" className="relative py-12 md:py-20 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-[#08080c] to-black" />
 
@@ -76,7 +76,7 @@ export default function SkillsSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12 md:mb-20"
+          className="text-center mb-8 md:mb-12"
         >
           <p className="text-[#C9A96E] text-xs font-mono tracking-[0.3em] uppercase mb-4">
             Capabilities
@@ -87,7 +87,7 @@ export default function SkillsSection() {
         </motion.div>
 
         {/* Desktop Grid — unchanged */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {skills.map((skill, i) => (
             <SkillCard
               key={skill.title}
@@ -102,7 +102,7 @@ export default function SkillsSection() {
         </div>
 
         {/* Mobile Staggered Composition */}
-        <div className="md:hidden relative">
+        <div className="md:hidden relative" style={{ minHeight: "380px" }}>
           <MobileSkillsComposition
             skills={skills}
             isVisible={isVisible}
@@ -171,13 +171,13 @@ function SkillCard({
           rotateY: isHovered ? rotateY : 0,
           transformStyle: "preserve-3d",
         }}
-        className={`relative p-6 rounded-2xl border transition-all duration-300 ${
+        className={`relative p-4 rounded-2xl border transition-all duration-300 ${
           isHovered
             ? "border-[#C9A96E]/30 bg-[#C9A96E]/5 shadow-[0_0_40px_rgba(201,169,110,0.1)]"
             : "border-white/5 bg-white/[0.02]"
         } backdrop-blur-sm`}
       >
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 ${
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 ${
           isHovered ? "bg-[#C9A96E]/10" : "bg-white/5"
         }`}>
           <skill.icon
@@ -222,7 +222,7 @@ function MobileSkillsComposition({
   onToggle: (i: number) => void;
 }) {
   return (
-    <div className="relative" style={{ minHeight: "480px" }}>
+    <div className="relative" style={{ minHeight: "380px" }}>
       {/* Ambient floating orbs */}
       <motion.div
         className="absolute top-8 right-6 w-20 h-20 rounded-full bg-[#C9A96E]/5 blur-2xl"
@@ -236,7 +236,7 @@ function MobileSkillsComposition({
       />
 
       {/* Row 1: Two cards side by side, staggered */}
-      <div className="flex gap-3 mb-3">
+      <div className="flex gap-2 mb-2">
         <motion.div
           initial={{ opacity: 0, y: 20, x: -10 }}
           animate={isVisible ? { opacity: 1, y: 0, x: 0 } : {}}
@@ -286,7 +286,7 @@ function MobileSkillsComposition({
       </div>
 
       {/* Row 3: Two cards, second overlapping slightly */}
-      <div className="flex gap-2 mb-3">
+      <div className="flex gap-2 mb-2">
         <motion.div
           initial={{ opacity: 0, y: 20, x: -15 }}
           animate={isVisible ? { opacity: 1, y: 0, x: 0 } : {}}
