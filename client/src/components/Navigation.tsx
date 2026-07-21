@@ -54,7 +54,7 @@ export default function Navigation() {
           handleNavClick("#home");
         }}>
           <img
-            src="/manus-storage/logo_328c4d31.png"
+            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/qtxmWIxgIEiGjGEU.png"
             alt="YS"
             className="w-7 h-7 md:w-9 md:h-9 transition-transform duration-300 group-hover:scale-110"
           />

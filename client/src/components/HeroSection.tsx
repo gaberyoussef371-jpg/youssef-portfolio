@@ -29,7 +29,7 @@ export default function HeroSection() {
       {/* Background Image with Parallax */}
       <motion.div style={{ y }} className="absolute inset-0">
         <img
-          src="/manus-storage/hero-bg_8d8b3444.png"
+          src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/BUgICFdQRxMEZovn.png"
           alt=""
           className="w-full h-full object-cover opacity-40"
         />
@@ -160,7 +160,7 @@ export default function HeroSection() {
                   className="relative"
                 >
                   <img
-                    src="/manus-storage/avatar_ca274b6e.png"
+                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/DhahEeswOAmUDaDM.png"
                     alt="Youssef Shehata"
                     className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(201,169,110,0.2)]"
                     style={{ filter: "brightness(1.05) contrast(1.05)" }}
@@ -192,7 +192,7 @@ export default function HeroSection() {
                 className="relative w-full h-full rounded-full overflow-hidden border border-[#C9A96E]/20"
               >
                 <img
-                  src="/manus-storage/avatar_ca274b6e.png"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/DhahEeswOAmUDaDM.png"
                   alt="Youssef Shehata"
                   className="w-full h-full object-cover"
                 />

@@ -10,7 +10,7 @@ import { ExternalLink } from "lucide-react";
 
 const projects = [
   {
-    image: "/manus-storage/gents-project_b725c36f.jpeg",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/pjVZzXxomOYlDgQp.jpeg",
     name: "Gents",
     client: "Gents Egypt",
     url: "https://www.gentseg.com",
@@ -20,7 +20,7 @@ const projects = [
     results: "Fully responsive multi-device experience",
   },
   {
-    image: "/manus-storage/book-corner-real_499d2c46.jpeg",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/FKWCUwgUJjRCnUwG.jpeg",
     name: "Book Corner",
     client: "Book Corner Egypt",
     url: "https://bookcorner-eg.myshopify.com",
@@ -30,7 +30,7 @@ const projects = [
     results: "Clean, intuitive browsing experience",
   },
   {
-    image: "/manus-storage/dolce-real_820c7c40.jpeg",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/ejeohCKfSKciULRt.jpeg",
     name: "Dolce",
     client: "Dolce Egypt",
     url: "https://dolce-egy.myshopify.com",
@@ -40,7 +40,7 @@ const projects = [
     results: "Premium brand presentation",
   },
   {
-    image: "/manus-storage/maison-declat-real_11d343ea.jpeg",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/aPYlCRkwRukXnfuJ.jpeg",
     name: "Maison Declat",
     client: "Maison Declat",
     url: "https://maisondeclate.myshopify.com",

@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Left - Branding */}
           <div className="flex items-center gap-3">
             <img
-              src="/manus-storage/logo_328c4d31.png"
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/qtxmWIxgIEiGjGEU.png"
               alt="YS"
               className="w-7 h-7 md:w-8 md:h-8"
             />
