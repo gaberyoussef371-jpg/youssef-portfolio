@@ -1,10 +1,11 @@
 /**
- * SkillsSection — Interactive 3D skills display
- * Design: Liquid Obsidian — desktop: grid with 3D tilt | mobile: staggered spatial composition
- * Mobile: floating cards in asymmetric positions, horizontal scroll row, overlapping layers
+ * SkillsSection — Premium 3D horizontal carousel
+ * Design: Liquid Obsidian
+ * Desktop: 3D perspective slider with mouse drag + parallax
+ * Mobile: Touch-friendly swipe carousel with snap
  */
-import { useState, useRef } from "react";
-import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import {
   Layout,
@@ -13,6 +14,8 @@ import {
   MessageCircle,
   Box,
   TrendingUp,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const skills = [
@@ -60,25 +63,40 @@ const skills = [
   },
 ];
 
+// Extended carousel with duplicated items for seamless infinite loop
+const extendedSkills = [...skills, ...skills, ...skills];
+
 export default function SkillsSection() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [expandedMobile, setExpandedMobile] = useState<number | null>(null);
-  const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
+  const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.05 });
 
   return (
     <section id="skills" className="relative py-12 md:py-20 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-[#08080c] to-black" />
 
-      <div ref={ref} className="relative z-10 container max-w-7xl mx-auto px-4 md:px-6">
+      {/* Ambient depth layers */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 rounded-full bg-[#C9A96E]/[0.03] blur-[120px]"
+          animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-48 h-48 md:w-72 md:h-72 rounded-full bg-[#C9A96E]/[0.02] blur-[100px]"
+          animate={{ y: [0, 20, 0], x: [0, -15, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        />
+      </div>
+
+      <div ref={ref} className="relative z-10">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-8 md:mb-12"
+          transition={{ duration: 0.7 }}
+          className="text-center mb-6 md:mb-10"
         >
-          <p className="text-[#C9A96E] text-xs font-mono tracking-[0.3em] uppercase mb-4">
+          <p className="text-[#C9A96E] text-xs font-mono tracking-[0.3em] uppercase mb-3">
             Capabilities
           </p>
           <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-white">
@@ -86,346 +104,445 @@ export default function SkillsSection() {
           </h2>
         </motion.div>
 
-        {/* Desktop Grid — unchanged */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          {skills.map((skill, i) => (
-            <SkillCard
-              key={skill.title}
-              skill={skill}
-              index={i}
-              isVisible={isVisible}
-              isHovered={hoveredIndex === i}
-              onHoverStart={() => setHoveredIndex(i)}
-              onHoverEnd={() => setHoveredIndex(null)}
-            />
-          ))}
-        </div>
-
-        {/* Mobile Staggered Composition */}
-        <div className="md:hidden relative" style={{ minHeight: "380px" }}>
-          <MobileSkillsComposition
-            skills={skills}
-            isVisible={isVisible}
-            expandedIndex={expandedMobile}
-            onToggle={(i) => setExpandedMobile(expandedMobile === i ? null : i)}
-          />
-        </div>
+        {/* 3D Carousel */}
+        <SkillsCarousel isVisible={isVisible} />
       </div>
     </section>
   );
 }
 
-/* ─── Desktop Skill Card (preserved) ─── */
-function SkillCard({
+function SkillsCarousel({ isVisible }: { isVisible: boolean }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragStartX = useRef(0);
+  const dragCurrentX = useMotionValue(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const cardWidth = 320; // base card width
+  const gap = 24; // gap between cards
+
+  // Spring for smooth drag
+  const smoothDrag = useSpring(dragCurrentX, {
+    stiffness: 300,
+    damping: 30,
+    mass: 0.8,
+  });
+
+  // Determine visible cards based on screen width
+  const getVisibleCount = () => {
+    if (typeof window === "undefined") return 3;
+    const w = window.innerWidth;
+    if (w < 480) return 1.2;
+    if (w < 768) return 1.5;
+    if (w < 1024) return 2;
+    return 3;
+  };
+
+  const [visibleCount, setVisibleCount] = useState(getVisibleCount());
+
+  useEffect(() => {
+    const handleResize = () => setVisibleCount(getVisibleCount());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Calculate total translate range
+  const totalWidth = extendedSkills.length * (cardWidth + gap);
+  const maxTranslate = -(totalWidth - (window.innerWidth || 1200));
+  const minTranslate = 0;
+
+  // Constrained translate
+  const constrainedTranslate = useTransform(
+    smoothDrag,
+    [minTranslate - 200, minTranslate, maxTranslate, maxTranslate + 200],
+    [minTranslate - 200, minTranslate, maxTranslate, maxTranslate + 200]
+  );
+
+  // Desktop mouse drag
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartX.current = e.clientX;
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging) return;
+      const delta = e.clientX - dragStartX.current;
+      dragCurrentX.set(delta);
+    },
+    [isDragging, dragCurrentX]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    const delta = dragCurrentX.get();
+    const threshold = cardWidth * 0.3;
+
+    if (Math.abs(delta) > threshold) {
+      if (delta > 0) {
+        setActiveIndex((prev) => Math.max(0, prev - 1));
+      } else {
+        setActiveIndex((prev) => Math.min(skills.length - 1, prev + 1));
+      }
+    }
+
+    // Reset drag value with spring animation
+    dragCurrentX.set(0);
+  }, [isDragging, dragCurrentX]);
+
+  // Touch handlers for mobile
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setIsDragging(true);
+    dragStartX.current = e.touches[0].clientX;
+    dragCurrentX.set(0);
+  }, [dragCurrentX]);
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging) return;
+      const delta = e.touches[0].clientX - dragStartX.current;
+      dragCurrentX.set(delta);
+    },
+    [isDragging, dragCurrentX]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    const delta = dragCurrentX.get();
+    const threshold = 40;
+
+    if (Math.abs(delta) > threshold) {
+      if (delta > 0) {
+        setActiveIndex((prev) => Math.max(0, prev - 1));
+      } else {
+        setActiveIndex((prev) => Math.min(skills.length - 1, prev + 1));
+      }
+    }
+
+    dragCurrentX.set(0);
+  }, [isDragging, dragCurrentX]);
+
+  // Navigate functions
+  const goNext = () => setActiveIndex((prev) => Math.min(skills.length - 1, prev + 1));
+  const goPrev = () => setActiveIndex((prev) => Math.max(0, prev - 1));
+
+  // Center offset for current active card
+  const centerOffset = activeIndex * (cardWidth + gap);
+
+  return (
+    <div className="relative w-full">
+      {/* 3D Perspective Container */}
+      <div
+        className="relative overflow-hidden"
+        style={{ perspective: "1200px", perspectiveOrigin: "50% 50%" }}
+        ref={carouselRef}
+      >
+        {/* Carousel track */}
+        <motion.div
+          className="flex items-center"
+          style={{
+            paddingLeft: "calc(50% - 160px + var(--center-offset, 0px))",
+            willChange: "transform",
+            x: useTransform(
+              smoothDrag,
+              [-1000, 0, 1000],
+              [-1000 - centerOffset, -centerOffset, 1000 - centerOffset]
+            ),
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onDragEnd={(_, info) => {
+            const delta = info.offset.x;
+            if (Math.abs(delta) > 50) {
+              if (delta > 0) goPrev();
+              else goNext();
+            }
+          }}
+        >
+          {extendedSkills.map((skill, i) => {
+            const realIndex = i % skills.length;
+            const distanceFromCenter = Math.abs(realIndex - activeIndex);
+
+            return (
+              <motion.div
+                key={`${skill.title}-${i}`}
+                className="shrink-0"
+                style={{ width: cardWidth, marginRight: gap }}
+                initial={false}
+                animate={{
+                  rotateY: distanceFromCenter === 0 ? 0 : distanceFromCenter === 1 ? -5 : 5,
+                  rotateX: distanceFromCenter === 0 ? 0 : 3,
+                  scale: distanceFromCenter === 0 ? 1 : distanceFromCenter === 1 ? 0.92 : 0.85,
+                  z: distanceFromCenter === 0 ? 40 : 0,
+                  opacity: distanceFromCenter === 0 ? 1 : distanceFromCenter === 1 ? 0.75 : 0.5,
+                  filter: `blur(${distanceFromCenter > 1 ? 2 : 0}px)`,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 25,
+                  mass: 0.6,
+                }}
+                onClick={() => setActiveIndex(realIndex)}
+              >
+                <SkillCard3D
+                  skill={skill}
+                  isActive={realIndex === activeIndex}
+                  isVisible={isVisible}
+                  index={i}
+                  onMouseMoveParallax={isDragging}
+                />
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+
+      {/* Navigation Arrows */}
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-4 z-20">
+        <motion.button
+          whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(201,169,110,0.3)" }}
+          whileTap={{ scale: 0.95 }}
+          onClick={goPrev}
+          disabled={activeIndex === 0}
+          className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
+            activeIndex === 0
+              ? "border-white/5 bg-white/[0.02] text-white/20 cursor-not-allowed"
+              : "border-[#C9A96E]/20 bg-black/60 text-[#C9A96E] hover:border-[#C9A96E]/40 cursor-pointer backdrop-blur-sm"
+          }`}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </motion.button>
+      </div>
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-4 z-20">
+        <motion.button
+          whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(201,169,110,0.3)" }}
+          whileTap={{ scale: 0.95 }}
+          onClick={goNext}
+          disabled={activeIndex === skills.length - 1}
+          className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
+            activeIndex === skills.length - 1
+              ? "border-white/5 bg-white/[0.02] text-white/20 cursor-not-allowed"
+              : "border-[#C9A96E]/20 bg-black/60 text-[#C9A96E] hover:border-[#C9A96E]/40 cursor-pointer backdrop-blur-sm"
+          }`}
+        >
+          <ChevronRight className="w-5 h-5" />
+        </motion.button>
+      </div>
+
+      {/* Bottom: Dots indicator */}
+      <div className="flex justify-center mt-6 md:mt-8 gap-2">
+        {skills.map((_, i) => (
+          <motion.button
+            key={i}
+            onClick={() => setActiveIndex(i)}
+            className="h-1 rounded-full transition-all duration-500 cursor-pointer"
+            animate={{
+              width: i === activeIndex ? 24 : 8,
+              backgroundColor: i === activeIndex ? "#C9A96E" : "rgba(255,255,255,0.15)",
+            }}
+            whileHover={{ scale: 1.3 }}
+            whileTap={{ scale: 0.8 }}
+          />
+        ))}
+      </div>
+
+      {/* Mobile: Swipe hint */}
+      <motion.p
+        className="md:hidden text-center text-white/25 text-[10px] font-mono mt-3 tracking-wider"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        ← SWIPE TO EXPLORE →
+      </motion.p>
+    </div>
+  );
+}
+
+function SkillCard3D({
   skill,
-  index,
+  isActive,
   isVisible,
-  isHovered,
-  onHoverStart,
-  onHoverEnd,
+  index,
+  onMouseMoveParallax,
 }: {
   skill: typeof skills[0];
-  index: number;
+  isActive: boolean;
   isVisible: boolean;
-  isHovered: boolean;
-  onHoverStart: () => void;
-  onHoverEnd: () => void;
+  index: number;
+  onMouseMoveParallax: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
 
-  const rotateX = useTransform(y, [-100, 100], [8, -8]);
-  const rotateY = useTransform(x, [-100, 100], [-8, 8]);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // Smooth parallax
+  const rotateX = useSpring(useTransform(mouseY, [-100, 100], [6, -6]), {
+    stiffness: 150,
+    damping: 20,
+  });
+  const rotateY = useSpring(useTransform(mouseX, [-100, 100], [-6, 6]), {
+    stiffness: 150,
+    damping: 20,
+  });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    x.set(e.clientX - centerX);
-    y.set(e.clientY - centerY);
+    mouseX.set(e.clientX - centerX);
+    mouseY.set(e.clientY - centerY);
   };
 
   const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-    onHoverEnd();
+    mouseX.set(0);
+    mouseY.set(0);
+    setIsHovered(false);
   };
 
   return (
     <motion.div
       ref={cardRef}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isVisible ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
+      initial={{ opacity: 0, y: 60, scale: 0.8 }}
+      animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.6, delay: (index % skills.length) * 0.1 }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={onHoverStart}
+      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      style={{ perspective: 1000 }}
-      className="group"
+      style={{
+        rotateX: isHovered ? rotateX : 0,
+        rotateY: isHovered ? rotateY : 0,
+        transformStyle: "preserve-3d",
+      }}
+      className={`relative cursor-pointer select-none`}
     >
+      {/* Floating shadow */}
       <motion.div
-        style={{
-          rotateX: isHovered ? rotateX : 0,
-          rotateY: isHovered ? rotateY : 0,
-          transformStyle: "preserve-3d",
+        className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-6 rounded-[50%] blur-xl transition-all duration-500"
+        animate={{
+          backgroundColor: isActive ? "rgba(201,169,110,0.15)" : "rgba(255,255,255,0.03)",
+          scale: isActive ? 1 : 0.8,
+          opacity: isActive ? 1 : 0.5,
         }}
-        className={`relative p-4 rounded-2xl border transition-all duration-300 ${
-          isHovered
-            ? "border-[#C9A96E]/30 bg-[#C9A96E]/5 shadow-[0_0_40px_rgba(201,169,110,0.1)]"
-            : "border-white/5 bg-white/[0.02]"
-        } backdrop-blur-sm`}
+      />
+
+      {/* Card body */}
+      <motion.div
+        className={`relative p-5 md:p-6 rounded-2xl border backdrop-blur-sm overflow-hidden transition-all duration-500 ${
+          isActive
+            ? "border-[#C9A96E]/25 bg-gradient-to-br from-[#C9A96E]/8 to-white/[0.03]"
+            : "border-white/[0.06] bg-white/[0.02]"
+        }`}
+        animate={{
+          boxShadow: isActive
+            ? "0 20px 60px rgba(201,169,110,0.1), 0 0 0 1px rgba(201,169,110,0.05)"
+            : "0 8px 32px rgba(0,0,0,0.3)",
+        }}
+        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 ${
-          isHovered ? "bg-[#C9A96E]/10" : "bg-white/5"
-        }`}>
+        {/* Subtle grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(circle, ${skill.color} 1px, transparent 1px)`,
+            backgroundSize: "24px 24px",
+          }}
+        />
+
+        {/* Icon */}
+        <motion.div
+          className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center mb-4 transition-all duration-500 ${
+            isActive ? "bg-[#C9A96E]/10" : "bg-white/5"
+          }`}
+          animate={
+            isActive
+              ? {
+                  boxShadow: `0 0 30px ${skill.color}20`,
+                  scale: 1.05,
+                }
+              : { boxShadow: "none", scale: 1 }
+          }
+        >
           <skill.icon
-            className="w-5 h-5 transition-colors duration-300"
-            style={{ color: isHovered ? skill.color : "rgba(201,169,110,0.6)" }}
+            className="w-6 h-6 md:w-7 md:h-7 transition-colors duration-500"
+            style={{
+              color: isActive ? skill.color : "rgba(201,169,110,0.4)",
+            }}
           />
-        </div>
-        <h3 className="text-white font-display font-semibold text-base mb-2 tracking-tight">
+        </motion.div>
+
+        {/* Title */}
+        <h3 className="font-display font-bold text-white text-base md:text-lg tracking-tight mb-2">
           {skill.title}
         </h3>
-        <motion.p
-          className="text-white/40 text-sm leading-relaxed"
-          animate={{ height: isHovered ? "auto" : "2.8em" }}
-          transition={{ duration: 0.3 }}
-          style={{ overflow: "hidden" }}
-        >
-          {skill.description}
-        </motion.p>
-        <div
-          className={`absolute inset-0 rounded-2xl transition-opacity duration-300 pointer-events-none ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
-          style={{
-            background: `radial-gradient(circle at 50% 50%, rgba(201,169,110,0.03) 0%, transparent 70%)`,
-          }}
-        />
-      </motion.div>
-    </motion.div>
-  );
-}
 
-/* ─── Mobile Staggered Composition ─── */
-function MobileSkillsComposition({
-  skills,
-  isVisible,
-  expandedIndex,
-  onToggle,
-}: {
-  skills: { icon: any; title: string; shortLabel: string; description: string; color: string }[];
-  isVisible: boolean;
-  expandedIndex: number | null;
-  onToggle: (i: number) => void;
-}) {
-  return (
-    <div className="relative" style={{ minHeight: "380px" }}>
-      {/* Ambient floating orbs */}
-      <motion.div
-        className="absolute top-8 right-6 w-20 h-20 rounded-full bg-[#C9A96E]/5 blur-2xl"
-        animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-12 left-4 w-16 h-16 rounded-full bg-[#C9A96E]/3 blur-xl"
-        animate={{ y: [0, 10, 0], x: [0, -8, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-      />
-
-      {/* Row 1: Two cards side by side, staggered */}
-      <div className="flex gap-2 mb-2">
-        <motion.div
-          initial={{ opacity: 0, y: 20, x: -10 }}
-          animate={isVisible ? { opacity: 1, y: 0, x: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex-1"
-        >
-          <MobileSkillBubble
-            skill={skills[0]}
-            isExpanded={expandedIndex === 0}
-            onToggle={() => onToggle(0)}
-            floatDelay={0}
-            size="large"
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20, x: 10 }}
-          animate={isVisible ? { opacity: 1, y: 0, x: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex-1 mt-4"
-        >
-          <MobileSkillBubble
-            skill={skills[1]}
-            isExpanded={expandedIndex === 1}
-            onToggle={() => onToggle(1)}
-            floatDelay={0.5}
-            size="large"
-          />
-        </motion.div>
-      </div>
-
-      {/* Row 2: Single card, offset right */}
-      <div className="flex justify-end mb-3">
-        <motion.div
-          initial={{ opacity: 0, y: 20, x: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0, x: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="w-2/3"
-        >
-          <MobileSkillBubble
-            skill={skills[2]}
-            isExpanded={expandedIndex === 2}
-            onToggle={() => onToggle(2)}
-            floatDelay={1}
-            size="medium"
-          />
-        </motion.div>
-      </div>
-
-      {/* Row 3: Two cards, second overlapping slightly */}
-      <div className="flex gap-2 mb-2">
-        <motion.div
-          initial={{ opacity: 0, y: 20, x: -15 }}
-          animate={isVisible ? { opacity: 1, y: 0, x: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex-[1.3]"
-        >
-          <MobileSkillBubble
-            skill={skills[3]}
-            isExpanded={expandedIndex === 3}
-            onToggle={() => onToggle(3)}
-            floatDelay={1.5}
-            size="large"
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20, x: 10 }}
-          animate={isVisible ? { opacity: 1, y: 0, x: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex-1"
-        >
-          <MobileSkillBubble
-            skill={skills[4]}
-            isExpanded={expandedIndex === 4}
-            onToggle={() => onToggle(4)}
-            floatDelay={2}
-            size="small"
-          />
-        </motion.div>
-      </div>
-
-      {/* Row 4: Full width card, slightly tilted */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.5, delay: 0.6 }}
-      >
-        <MobileSkillBubble
-          skill={skills[5]}
-          isExpanded={expandedIndex === 5}
-          onToggle={() => onToggle(5)}
-          floatDelay={2.5}
-          size="full"
-        />
-      </motion.div>
-    </div>
-  );
-}
-
-function MobileSkillBubble({
-  skill,
-  isExpanded,
-  onToggle,
-  floatDelay,
-  size,
-}: {
-  skill: typeof skills[0];
-  isExpanded: boolean;
-  onToggle: () => void;
-  floatDelay: number;
-  size: "small" | "medium" | "large" | "full";
-}) {
-  const sizeClasses = {
-    small: "px-3 py-2.5",
-    medium: "px-4 py-3",
-    large: "px-4 py-3.5",
-    full: "px-4 py-3.5",
-  };
-
-  const iconSizes = {
-    small: "w-4 h-4",
-    medium: "w-5 h-5",
-    large: "w-5 h-5",
-    full: "w-5 h-5",
-  };
-
-  const titleSizes = {
-    small: "text-[11px]",
-    medium: "text-xs",
-    large: "text-sm",
-    full: "text-sm",
-  };
-
-  return (
-    <motion.div
-      animate={{
-        y: [0, -4, 0],
-        rotateZ: isExpanded ? 0 : size === "full" ? 0.5 : 0,
-      }}
-      transition={{
-        y: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: floatDelay },
-        rotateZ: { duration: 0.3 },
-      }}
-      whileTap={{ scale: 0.97 }}
-      onClick={onToggle}
-      className={`relative ${sizeClasses[size]} rounded-xl border transition-all duration-300 cursor-pointer select-none ${
-        isExpanded
-          ? "border-[#C9A96E]/30 bg-[#C9A96E]/8 shadow-[0_0_30px_rgba(201,169,110,0.08)]"
-          : "border-white/[0.06] bg-white/[0.03]"
-      }`}
-    >
-      <div className="flex items-center gap-2.5">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-          isExpanded ? "bg-[#C9A96E]/15" : "bg-white/5"
-        }`}>
-          <skill.icon
-            className={iconSizes[size]}
-            style={{ color: isExpanded ? skill.color : "rgba(201,169,110,0.5)" }}
-          />
-        </div>
-        <span className={`font-display font-semibold text-white ${titleSizes[size]} tracking-tight`}>
-          {skill.title}
-        </span>
-      </div>
-
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <p className="text-white/40 text-xs leading-relaxed mt-2 pl-[42px]">
+        {/* Description */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.p
+              initial={{ opacity: 0, y: 8, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -8, height: 0 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              className="text-white/40 text-sm leading-relaxed overflow-hidden"
+            >
               {skill.description}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.p>
+          )}
+        </AnimatePresence>
 
-      {/* Glow on expand */}
-      {isExpanded && (
-        <div
-          className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{
-            background: "radial-gradient(circle at 50% 50%, rgba(201,169,110,0.04) 0%, transparent 70%)",
-          }}
-        />
-      )}
+        {/* Active glow accent */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute top-0 left-0 right-0 h-[1px]"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${skill.color}40, transparent)`,
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Hover light sweep */}
+        {isHovered && (
+          <motion.div
+            initial={{ x: "-100%", opacity: 0 }}
+            animate={{ x: "100%", opacity: 0.06 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${skill.color}, transparent)`,
+            }}
+          />
+        )}
+      </motion.div>
+
+      {/* Bottom label */}
+      <motion.div
+        className="text-center mt-3"
+        animate={{ opacity: isActive ? 1 : 0.4 }}
+        transition={{ duration: 0.3 }}
+      >
+        <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[#C9A96E]/60">
+          {skill.shortLabel}
+        </span>
+      </motion.div>
     </motion.div>
   );
 }

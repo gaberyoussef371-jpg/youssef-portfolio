@@ -160,7 +160,7 @@ export default function HeroSection() {
                   className="relative"
                 >
                   <img
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/DhahEeswOAmUDaDM.png"
+                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/aqzziQinBYhrCoZK.png"
                     alt="Youssef Shehata"
                     className="w-full h-full object-contain drop-shadow-[0_0_60px_rgba(201,169,110,0.2)]"
                     style={{ filter: "brightness(1.05) contrast(1.05)" }}
@@ -192,7 +192,7 @@ export default function HeroSection() {
                 className="relative w-full h-full rounded-full overflow-hidden border border-[#C9A96E]/20"
               >
                 <img
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/DhahEeswOAmUDaDM.png"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/aqzziQinBYhrCoZK.png"
                   alt="Youssef Shehata"
                   className="w-full h-full object-cover"
                 />
