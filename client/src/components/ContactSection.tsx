@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { MessageSquare, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
+import { submitMessage } from "@/lib/data/messages";
 
 export default function ContactSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
@@ -20,8 +21,22 @@ export default function ContactSection() {
     details: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    try {
+      await submitMessage({
+        name: formData.name,
+        email: formData.email,
+        brandName: formData.brandName || undefined,
+        projectType: formData.projectType || undefined,
+        budget: formData.budget || undefined,
+        details: formData.details || undefined,
+      });
+    } catch {
+      // Non-blocking: mailto fallback still works if storage fails
+    }
+
     const subject = encodeURIComponent(`Project Request from ${formData.name}`);
     const body = encodeURIComponent(
       `Name: ${formData.name}\nEmail: ${formData.email}\nBrand: ${formData.brandName}\nProject Type: ${formData.projectType}\nBudget: ${formData.budget}\n\nDetails:\n${formData.details}`

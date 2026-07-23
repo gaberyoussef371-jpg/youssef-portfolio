@@ -3,56 +3,44 @@
  * Design: Liquid Obsidian
  * Desktop: 2x2 grid with 3D tilt | Mobile: horizontal scroll carousel with large cards
  */
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { ExternalLink } from "lucide-react";
+import { getProjects } from "@/lib/data/projects";
+import type { PortfolioProject } from "@/lib/data/types";
 
-const projects = [
-  {
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/pjVZzXxomOYlDgQp.jpeg",
-    name: "Gents",
-    client: "Gents Egypt",
-    url: "https://www.gentseg.com",
-    category: "Shopify Development",
-    description: "Premium jewelry e-commerce store with custom Shopify theme, countdown timers, bundles, and a polished multi-device shopping experience.",
-    technologies: ["Shopify", "Custom Theme", "Liquid", "Bundles"],
-    results: "Fully responsive multi-device experience",
-  },
-  {
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/FKWCUwgUJjRCnUwG.jpeg",
-    name: "Book Corner",
-    client: "Book Corner Egypt",
-    url: "https://bookcorner-eg.myshopify.com",
-    category: "Shopify Development",
-    description: "Online bookstore built on Shopify with clean product catalog, category navigation, and streamlined checkout for book lovers.",
-    technologies: ["Shopify", "Theme Customization", "Liquid", "UI/UX"],
-    results: "Clean, intuitive browsing experience",
-  },
-  {
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/ejeohCKfSKciULRt.jpeg",
-    name: "Dolce",
-    client: "Dolce Egypt",
-    url: "https://dolce-egy.myshopify.com",
-    category: "Shopify Development",
-    description: "Luxury fashion brand e-commerce store with premium product presentation, elegant layout, and conversion-focused design.",
-    technologies: ["Shopify", "Custom Sections", "Liquid", "UI/UX"],
-    results: "Premium brand presentation",
-  },
-  {
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663843627654/aPYlCRkwRukXnfuJ.jpeg",
-    name: "Maison Declat",
-    client: "Maison Declat",
-    url: "https://maisondeclate.myshopify.com",
-    category: "Shopify Development",
-    description: "Luxury perfume and fragrance store with sophisticated design, product storytelling, and an elevated shopping experience.",
-    technologies: ["Shopify", "Custom Theme", "Liquid", "Brand Design"],
-    results: "Luxury brand digital presence",
-  },
-];
+type DisplayProject = {
+  image: string;
+  name: string;
+  client: string;
+  url: string;
+  category: string;
+  description: string;
+  technologies: string[];
+  results: string;
+};
+
+function toDisplayProject(project: PortfolioProject): DisplayProject {
+  return {
+    image: project.imageUrl,
+    name: project.title,
+    client: project.client ?? project.title,
+    url: project.liveUrl,
+    category: project.category ?? "Portfolio Project",
+    description: project.description,
+    technologies: project.techStack,
+    results: project.results ?? "",
+  };
+}
 
 export default function WorkSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
+  const [projects, setProjects] = useState<DisplayProject[]>([]);
+
+  useEffect(() => {
+    getProjects().then((data) => setProjects(data.map(toDisplayProject)));
+  }, []);
 
   return (
     <section id="work" className="relative py-20 md:py-32 overflow-hidden">
@@ -77,6 +65,11 @@ export default function WorkSection() {
 
         {/* Desktop Grid */}
         <div className="hidden md:grid grid-cols-2 gap-8">
+          {projects.length === 0 && (
+            <p className="col-span-2 text-center text-white/30 text-sm font-mono py-12">
+              Loading projects…
+            </p>
+          )}
           {projects.map((project, i) => (
             <ProjectCard
               key={project.name}
@@ -140,7 +133,7 @@ function ProjectCard({
   index,
   isVisible,
 }: {
-  project: typeof projects[0];
+  project: DisplayProject;
   index: number;
   isVisible: boolean;
 }) {
@@ -246,7 +239,7 @@ function MobileProjectCard({
   project,
   index,
 }: {
-  project: typeof projects[0];
+  project: DisplayProject;
   index: number;
 }) {
   return (
